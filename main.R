@@ -60,10 +60,10 @@ grid.arrange(spplot(vcf_predict, zlim=c(0,100) ,col.regions=colorRampPalette(c("
 vcf_dif <- vcf_predict - vcfGewata
 spplot(vcf_dif, zlim = c(-60,60), main="Tree cover VCF", zcol="layer", col.regions=colorRampPalette(c("red", "yellow", "darkgreen"))(100))
 
-# Root mean squared Error between Predicted and actual tree cover
+# Root mean squared Error for difference in predicted and actual tree cover
 dif_df <- as.data.frame(vcf_predict$Treecover - covs$VCF, na.rm=T)
-RMSE <- sqrt(mean(dif_df ^ 2))
-
+RMSE <- round(sqrt(mean(dif_df ^ 2)), digits=2)
+print(paste("The RMSE for the difference in predicted and actural tree cover is", RMSE))
 # Set up trainings data
 trainingPoly@data$Code <- as.numeric(trainingPoly@data$Class)
 
@@ -72,14 +72,13 @@ land_use_classes <- rasterize(trainingPoly, covs$VCF, field='Code')
 
 # Brick with predicted and actual tree cover
 pred_act_brick <- brick(covs$VCF, vcf_predict)
-pred_act_brick
 
 # Calculate the mean for every class by the use of zonal()
 mean_cover <- zonal(pred_act_brick, land_use_classes, fun='mean',na.rm=T)
 mean_cover_df <- as.data.frame(mean_cover)
 
 # Calculate the Root mean squared Error for all of the 3 classes
-rmse_mean_cover <- sqrt((mean_cover_df$VCF - mean_cover_df$layer)^2), decimals
+rmse_mean_cover <- round(sqrt((mean_cover_df$VCF - mean_cover_df$layer)^2), digits=2)
 names(rmse_mean_cover) <- c("Crop", "Forest", "Wetlands")
 
 # Print statement
